@@ -62,41 +62,16 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "ubuntu-server-10.04"
   config.vm.box_url = "http://files.vagrantup.com/lucid64.box"
-  config.vm.synced_folder "/your/home/dir", "/nginx"
+  config.vm.synced_folder "/host/dir", "/nginx"
 end
 ```
 
-Build script
+### Build script
+
+The build script for nginx is provided in heroku/support
 
 ```
-#!/bin/sh
-# http://jamie.curle.io/blog/compiling-nginx-ubuntu/
-
-pcre_version=8.33
-nginx_version=1.5.10
-
+apt-get update
 apt-get install -fy build-essential zlib1g-dev
-
-mkdir ~/src
-cd ~/src
-
-wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-$pcre_version.tar.gz
-tar -xzvf pcre-$pcre_version.tar.gz
-cd pcre-$pcre_version/
-./configure # /usr/local is the default so no need to prefix
-make
-make install
-ldconfig # this is important otherwise nginx will compile but fail to load
-
-cd ~/src
-wget http://nginx.org/download/nginx-$nginx_version.tar.gz
-tar -xvzf nginx-$nginx_version.tar.gz 
-cd nginx-$nginx_version
-./configure
-
-make 
-make install
-
-cd /usr/local
-sudo tar -zcvpf /nginx/nginx-$nginx_version.tar.gz nginx/
+heroku-buildpack run
 ```
